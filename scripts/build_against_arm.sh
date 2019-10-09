@@ -14,13 +14,16 @@ function build() {
   travis_wait docker run --rm -v "$(pwd)":/build -v "$(pwd)"/tmp/qemu-arm-static:/usr/bin/qemu-arm-static arm32v7/node:${NODE_VERSION} bash -c $docker_script
 }
 
+# sudo echo "deb https://apt.dockerproject.org/repo ubuntu-precise main" >> /etc/apt/sources.list.d/docker.list
+sudo apt-get update -y
+sudo apt-get install docker-engine -y
+sudo service docker start
+
 docker_script="cd /build && npm install --unsafe-perm --build-from-source"
 
 if [[ ${PUBLISHABLE:-false} == true ]] && [[ ${COMMIT_MESSAGE} =~ "[publish binary]" ]]; then
   docker_script+=" && node-pre-gyp package testpackage publish info --target_arch=armv7l"
 fi
-
-
 
 build
 make clean
